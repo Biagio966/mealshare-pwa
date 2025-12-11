@@ -1,0 +1,17 @@
+function addMeal() {
+  let meal = document.getElementById("meal").value;
+  let cost = document.getElementById("cost").value;
+
+  if (!meal || !cost) {
+    alert("Inserisci nome e costo");
+    return;
+  }
+
+  let li = document.createElement("li");
+  li.textContent = meal + " - " + cost + "€";
+
+  document.getElementById("mealList").appendChild(li);
+
+  document.getElementById("meal").value = "";
+  document.getElementById("cost").value = "";
+}

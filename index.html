@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MealShare Lite</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        .box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        input, button, textarea {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background: #28a745;
+            border: none;
+            color: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>MealShare – Versione Semplice</h1>
+
+    <div class="box">
+        <h3>Crea un pasto</h3>
+        <input id="mealName" placeholder="Nome del pasto">
+        <input id="mealCost" placeholder="Costo totale (es. 12.50)">
+        <textarea id="mealDesc" placeholder="Descrizione..."></textarea>
+        <button onclick="saveMeal()">Salva</button>
+    </div>
+
+    <div class="box">
+        <h3>Pasti salvati</h3>
+        <div id="mealsList">Nessun pasto ancora.</div>
+    </div>
+
+    <script>
+        function saveMeal() {
+            const name = document.getElementById("mealName").value;
+            const cost = document.getElementById("mealCost").value;
+            const desc = document.getElementById("mealDesc").value;
+
+            if (!name || !cost) {
+                alert("Inserisci almeno nome e costo!");
+                return;
+            }
+
+            const meal = { name, cost, desc };
+
+            let saved = JSON.parse(localStorage.getItem("meals") || "[]");
+            saved.push(meal);
+            localStorage.setItem("meals", JSON.stringify(saved));
+
+            loadMeals();
+        }
+
+        function loadMeals() {
+            let saved = JSON.parse(localStorage.getItem("meals") || "[]");
+            const list = document.getElementById("mealsList");
+
+            if (saved.length === 0) {
+                list.innerHTML = "Nessun pasto ancora.";
+                return;
+            }
+
+            list.innerHTML = saved.map(m =>
+                `<p><strong>${m.name}</strong> – €${m.cost}<br>${m.desc || ""}</p>`
+            ).join("");
+        }
+
+        loadMeals();
+    </script>
+
+</body>
+</html>

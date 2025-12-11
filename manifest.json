@@ -1,0 +1,10 @@
+{
+  "name": "MealShare",
+  "short_name": "MealShare",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#28a745",
+  "description": "App semplice per condividere pasti e dividere costi",
+  "icons": []
+}

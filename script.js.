@@ -15,3 +15,12 @@ function addMeal() {
   document.getElementById("meal").value = "";
   document.getElementById("cost").value = "";
 }
+
+list.innerHTML = saved.map(m =>
+  `<div class="meal-card">
+     <strong>${m.name}</strong><br>
+     💶 €${m.cost}<br>
+     <small>${m.desc || ""}</small>
+   </div>`
+).join("");
+

@@ -36,14 +36,21 @@
 
 <body>
     <h1>MealShare – Versione Semplice</h1>
+    <label style="font-size:14px;">
+  <input type="checkbox" id="accept">
+  Accetto <a href="legal.html" target="_blank">Avviso legale e Privacy</a>
+</label>
+
+<br><br>
+
 
     <div class="box">
         <h3>Crea un pasto</h3>
         <input id="mealName" placeholder="Nome del pasto">
         <input id="mealCost" placeholder="Costo totale (es. 12.50)">
         <textarea id="mealDesc" placeholder="Descrizione..."></textarea>
-        <button onclick="saveMeal()">Salva</button>
-    </div>
+        <button onclick="checkAndSave()">Salva</button>
+
 
     <div class="box">
         <h3>Pasti salvati</h3>
@@ -51,6 +58,14 @@
     </div>
 
     <script>
+        function checkAndSave() {
+  if (!document.getElementById("accept").checked) {
+    alert("Devi accettare Avviso legale e Privacy");
+    return;
+  }
+  saveMeal();
+}
+
         function saveMeal() {
             const name = document.getElementById("mealName").value;
             const cost = document.getElementById("mealCost").value;

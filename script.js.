@@ -1,6 +1,6 @@
 // 🔗 Supabase config
 const SUPABASE_URL = "https://zboefxtsggvkbinxlyux.supabase.co";
-const SUPABASE_ANON_KEY = "INCOLLA_QUI_LA_ANON_KEY";
+const SUPABASE_ANON_KEY = "sb_publishable_zDecXpjbouvxRCYFIVLwEw_ExgxwXPY";
 
 
 

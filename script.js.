@@ -1,32 +1,18 @@
-// 🔗 Supabase config
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
 const SUPABASE_URL = "https://zboefxtsggvkbinxlyux.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_zDecXpjbouvxRCYFIVLwEw_ExgxwXPY";
 
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
-function addMeal() {
-  let meal = document.getElementById("meal").value;
-  let cost = document.getElementById("cost").value;
-
-  if (!meal || !cost) {
-    alert("Inserisci nome e costo");
-    return;
+// TEST CONNESSIONE
+async function testConnection() {
+  const { data, error } = await supabase.from("meals").select("*");
+  if (error) {
+    console.log("Errore:", error.message);
+  } else {
+    console.log("Connesso a Supabase ✅", data);
   }
-
-  let li = document.createElement("li");
-  li.textContent = meal + " - " + cost + "€";
-
-  document.getElementById("mealList").appendChild(li);
-
-  document.getElementById("meal").value = "";
-  document.getElementById("cost").value = "";
 }
 
-list.innerHTML = saved.map(m =>
-  `<div class="meal-card">
-     <strong>${m.name}</strong><br>
-     💶 €${m.cost}<br>
-     <small>${m.desc || ""}</small>
-   </div>`
-).join("");
-
+testConnection();

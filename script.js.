@@ -1,3 +1,9 @@
+// 🔗 Supabase config
+const SUPABASE_URL = "https://zboefxtsggvkbinxlyux.supabase.co";
+const SUPABASE_ANON_KEY = "INCOLLA_QUI_LA_ANON_KEY";
+
+
+
 function addMeal() {
   let meal = document.getElementById("meal").value;
   let cost = document.getElementById("cost").value;

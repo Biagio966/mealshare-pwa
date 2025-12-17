@@ -103,41 +103,7 @@
   saveMeal();
 }
 
-        function saveMeal() {
-            const name = document.getElementById("mealName").value;
-            const cost = document.getElementById("mealCost").value;
-            const desc = document.getElementById("mealDesc").value;
-
-            if (!name || !cost) {
-                alert("Inserisci almeno nome e costo!");
-                return;
-            }
-
-            const meal = { name, cost, desc };
-
-            let saved = JSON.parse(localStorage.getItem("meals") || "[]");
-            saved.push(meal);
-            localStorage.setItem("meals", JSON.stringify(saved));
-
-            loadMeals();
-        }
-
-        function loadMeals() {
-            let saved = JSON.parse(localStorage.getItem("meals") || "[]");
-            const list = document.getElementById("mealsList");
-
-            if (saved.length === 0) {
-                list.innerHTML = "Nessun pasto ancora.";
-                return;
-            }
-
-            list.innerHTML = saved.map(m =>
-                `<p><strong>${m.name}</strong> – €${m.cost}<br>${m.desc || ""}</p>`
-            ).join("");
-        }
-
-        loadMeals();
-    </script> function acceptLegal() {
+        function acceptLegal() {
   localStorage.setItem("legalAccepted", "yes");
   document.getElementById("legalBanner").style.display = "none";
 }
@@ -147,6 +113,63 @@ window.onload = function () {
     document.getElementById("legalBanner").style.display = "block";
   }
 };
+
+        <script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const SUPABASE_URL = "https://zboefxtsggvkbinxlyux.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpib2VmeHRzZ2d2a2JpbnhseXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2NzMzNjQsImV4cCI6MjA4MTI0OTM2NH0.5uQaO-cKGxrdSiZPvjmqZE3jdYo0qo2uDdGUvrpQqEM";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function saveMeal() {
+    const name = document.getElementById("mealName").value;
+    const cost = document.getElementById("mealCost").value;
+    const desc = document.getElementById("mealDesc").value;
+
+    if (!name || !cost) {
+        alert("Inserisci almeno nome e costo!");
+        return;
+    }
+
+    const { error } = await supabase
+        .from("meals")
+        .insert([{ name, cost, description: desc }]);
+
+    if (error) {
+        alert("Errore: " + error.message);
+    } else {
+        alert("Pasto salvato 🎉");
+        loadMeals();
+    }
+}
+
+async function loadMeals() {
+    const { data, error } = await supabase
+        .from("meals")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    const list = document.getElementById("mealsList");
+
+    if (error) {
+        list.innerHTML = "Errore nel caricamento";
+        return;
+    }
+
+    if (data.length === 0) {
+        list.innerHTML = "Nessun pasto ancora.";
+        return;
+    }
+
+    list.innerHTML = data.map(m =>
+        `<p><strong>${m.name}</strong> – €${m.cost}<br>${m.description || ""}</p>`
+    ).join("");
+}
+
+window.saveMeal = saveMeal;
+loadMeals();
+</script>
 
 <hr>
 

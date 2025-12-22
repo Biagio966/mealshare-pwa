@@ -1,11 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gnammi</title>
-
-  <link rel="apple-touch-icon" href="public/IMG_1849.png">
 
   <style>
     body {
@@ -22,13 +21,13 @@
 
     .box {
       background: white;
-      border-radius: 16px;
+      border-radius: 14px;
       padding: 16px;
       margin-bottom: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
-    input, textarea {
+    input, button {
       width: 100%;
       padding: 12px;
       margin-top: 10px;
@@ -38,22 +37,19 @@
     }
 
     button {
-      width: 100%;
-      margin-top: 15px;
-      padding: 14px;
-      font-size: 16px;
       background: #2ecc71;
       color: white;
       border: none;
-      border-radius: 12px;
       font-weight: bold;
     }
 
-    .meal-card {
-      background: #f9f9f9;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 10px;
+    button.secondary {
+      background: #bdc3c7;
+      color: #333;
+    }
+
+    #app {
+      display: none;
     }
   </style>
 </head>
@@ -62,103 +58,116 @@
 
 <h1>🍽️ Gnammi</h1>
 
-<label style="font-size:14px;">
-  <input type="checkbox" id="accept">
-  Accetto <a href="#legal">Avviso legale e Privacy</a>
-</label>
+<!-- LOGIN / REGISTRAZIONE -->
+<div class="box" id="authBox">
+  <h3>Accedi o Registrati</h3>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
 
-<br><br>
+  <button onclick="signUp()">Registrati</button>
+  <button class="secondary" onclick="signIn()">Accedi</button>
 
-<div class="box">
-  <h3>Crea un pasto</h3>
-  <input id="mealName" placeholder="Nome del pasto">
-  <input id="mealCost" placeholder="Costo totale (es. 12.50)">
-  <textarea id="mealDesc" placeholder="Descrizione..."></textarea>
-  <button onclick="checkAndSave()">Salva</button>
+  <p id="authMessage"></p>
 </div>
 
-<div class="box">
-  <h3>Pasti salvati</h3>
-  <div id="mealsList">Nessun pasto ancora.</div>
-</div>
+<!-- APP -->
+<div id="app">
+  <div class="box">
+    <p>👋 Ciao <span id="userEmail"></span></p>
+    <button class="secondary" onclick="logout()">Logout</button>
+  </div>
 
-<hr id="legal">
+  <div class="box">
+    <h3>Crea un pasto</h3>
+    <input id="mealName" placeholder="Nome del pasto">
+    <input id="mealCost" placeholder="Costo (es. 6.50)">
+    <button onclick="saveMeal()">Salva pasto</button>
+  </div>
 
-<div style="font-size:12px;color:#555;">
-  <h3>Avviso legale</h3>
-  <p>
-    Gnammi è una piattaforma informativa che consente agli utenti di condividere
-    pasti fatti in casa e di ripartire esclusivamente i costi delle spese sostenute.
-  </p>
-  <p>
-    Gnammi non vende cibo e non svolge attività di ristorazione.
-    Gli utenti sono gli unici responsabili dei pasti condivisi.
-  </p>
+  <div class="box">
+    <h3>Pasti</h3>
+    <div id="mealsList">Caricamento...</div>
+  </div>
 </div>
 
 <script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const SUPABASE_URL = "https://zboefxtsggvkbinxlyux.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpib2VmeHRzZ2d2a2JpbnhseXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2NzMzNjQsImV4cCI6MjA4MTI0OTM2NH0.5uQaO-cKGxrdSiZPvjmqZE3jdYo0qo2uDdGUvrpQqEM";
+  const SUPABASE_URL = "zboefxtsggvkbinxlyux.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpib2VmeHRzZ2d2a2JpbnhseXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2NzMzNjQsImV4cCI6MjA4MTI0OTM2NH0.5uQaO-cKGxrdSiZPvjmqZE3jdYo0qo2uDdGUvrpQqEM";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-window.checkAndSave = async function () {
-  if (!document.getElementById("accept").checked) {
-    alert("Devi accettare l’avviso legale");
-    return;
-  }
-  await saveMeal();
-}
+  // --- AUTH ---
+  async function signUp() {
+    const email = emailInput().value;
+    const password = passwordInput().value;
 
-async function saveMeal() {
-  const name = mealName.value;
-  const cost = mealCost.value;
-  const desc = mealDesc.value;
-
-  if (!name || !cost) {
-    alert("Inserisci nome e costo");
-    return;
+    const { error } = await supabase.auth.signUp({ email, password });
+    message(error ? error.message : "Registrazione completata. Ora accedi.");
   }
 
-  const { error } = await supabase
-    .from("meals")
-    .insert([{ name, cost, description: desc }]);
+  async function signIn() {
+    const email = emailInput().value;
+    const password = passwordInput().value;
 
-  if (error) {
-    alert(error.message);
-  } else {
-    mealName.value = "";
-    mealCost.value = "";
-    mealDesc.value = "";
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return message(error.message);
+    showApp(data.user);
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    location.reload();
+  }
+
+  // --- MEALS ---
+  async function saveMeal() {
+    const name = document.getElementById("mealName").value;
+    const cost = document.getElementById("mealCost").value;
+
+    if (!name || !cost) return alert("Inserisci nome e costo");
+
+    const { error } = await supabase.from("meals").insert([{ name, cost }]);
+    if (error) alert(error.message);
+    else loadMeals();
+  }
+
+  async function loadMeals() {
+    const { data } = await supabase.from("meals").select("*").order("id", { ascending: false });
+    document.getElementById("mealsList").innerHTML =
+      data.map(m => `<p><b>${m.name}</b> – €${m.cost}</p>`).join("");
+  }
+
+  // --- UI ---
+  function showApp(user) {
+    document.getElementById("authBox").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("userEmail").innerText = user.email;
     loadMeals();
   }
-}
 
-async function loadMeals() {
-  const { data } = await supabase
-    .from("meals")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  const list = document.getElementById("mealsList");
-
-  if (!data || data.length === 0) {
-    list.innerHTML = "Nessun pasto ancora.";
-    return;
+  function message(text) {
+    document.getElementById("authMessage").innerText = text;
   }
 
-  list.innerHTML = data.map(m =>
-    `<div class="meal-card">
-      <strong>${m.name}</strong><br>
-      €${m.cost}<br>
-      ${m.description || ""}
-    </div>`
-  ).join("");
-}
+  function emailInput() {
+    return document.getElementById("email");
+  }
 
-loadMeals();
+  function passwordInput() {
+    return document.getElementById("password");
+  }
+
+  // --- SESSION CHECK ---
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) showApp(session.user);
+
+  // expose
+  window.signUp = signUp;
+  window.signIn = signIn;
+  window.logout = logout;
+  window.saveMeal = saveMeal;
 </script>
 
 </body>

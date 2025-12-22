@@ -128,7 +128,14 @@
 
     if (!name || !cost) return alert("Inserisci nome e costo");
 
-    const { error } = await supabase.from("meals").insert([{ name, cost }]);
+    const { error } = const { data: { user } } = await supabase.auth.getUser();
+
+await supabase.from("meals").insert([{
+  name,
+  cost,
+  user_id: user.id
+}]);
+
     if (error) alert(error.message);
     else loadMeals();
   }

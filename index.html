@@ -93,7 +93,7 @@
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  const SUPABASE_URL = "zboefxtsggvkbinxlyux.supabase.co";
+  const SUPABASE_URL = "https://zboefxtsggvkbinxlyux.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpib2VmeHRzZ2d2a2JpbnhseXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2NzMzNjQsImV4cCI6MjA4MTI0OTM2NH0.5uQaO-cKGxrdSiZPvjmqZE3jdYo0qo2uDdGUvrpQqEM";
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -128,7 +128,30 @@
 
     if (!name || !cost) return alert("Inserisci nome e costo");
 
-    const { error } = const { data: { user } } = await supabase.auth.getUser();
+    async function saveMeal() {
+  const name = document.getElementById("mealName").value;
+  const cost = document.getElementById("mealCost").value;
+
+  if (!name || !cost) {
+    alert("Inserisci nome e costo");
+    return;
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { error } = await supabase.from("meals").insert([{
+    name,
+    cost,
+    user_id: user.id
+  }]);
+
+  if (error) {
+    alert(error.message);
+  } else {
+    loadMeals();
+  }
+}
+
 
 await supabase.from("meals").insert([{
   name,

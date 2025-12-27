@@ -159,7 +159,7 @@
     }
   }
 
-  async function loadMeals() {
+    async function loadMeals() {
     const { data } = await supabase
       .from("meals")
       .select("*")
